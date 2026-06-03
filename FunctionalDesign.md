@@ -10,6 +10,8 @@ This document describes the **functional design** of an exam results analysis ca
 
 The design is **reusable across exams**: operators select an exam dataset and adjust grading configuration (caesura) without changing the underlying rules.
 
+Rules in this document were validated manually in a spreadsheet; see **[Prototype.md](Prototype.md)** for the workbook artifact, structure, and sheet formulas.
+
 ---
 
 ## 2. Scope
@@ -41,7 +43,7 @@ The capability is organised into the following areas (logical modules or screens
 | **Configuration** | Grading parameters and active exam dataset selection |
 | **Exam data** | One or more imported exams (read-only source; not altered by analysis) |
 | **Data checks** | Dataset health and output sanity summary |
-| **Student results** | Per-student grades and pass/fail |
+| **Student results** | Per-student grades and pass/fail; optional pass/fail pie and grade distribution bar chart |
 | **Item analytics** | Per-question P′ and rit (and optional quality labels) |
 
 ---
@@ -267,7 +269,7 @@ For the assignment’s real sample exam, expected outcomes are approximately:
 - **68** passed, **384** failed (~15% pass rate)
 - Minimum points to pass: **63.0** (70% of 90)
 
-Sample data and verification details: [TechnicalDesign.md](TechnicalDesign.md).
+Sample data and verification details: [Prototype.md](Prototype.md) §7–§8.
 
 ---
 
@@ -372,6 +374,16 @@ Visual rules are **display-only**; they do not change calculated values.
 
 When highlighting data-check issues, tie the highlight to **that student’s result** so tutors can spot the student immediately.
 
+### Student results — summary charts (recommended)
+
+Optional charts on the student results view complement the item-level pie charts:
+
+1. **Pass / fail (pie chart)** — slice counts for `Pass` and `Fail` (same values as the pass/fail column). Gives a quick cohort outcome next to the student table. Slice colors should align with pass/fail styling (e.g. subtle green vs red). Counts must match the data checks pass/fail totals for the active exam.
+
+2. **Grade distribution (bar chart)** — shows how many students fall in each grade band. Default: **one bar per whole grade** from 1 through 10, based on the rounded grade (1.0–10.0, one decimal). Alternative: wider bands (e.g. 1.0–2.9, 3.0–4.9, …) or percentage bands if tutors prefer raw performance over translated grades. The chart is display-only; bin edges should stay consistent when switching exams. The sum of bin counts must equal the student count.
+
+Charts refresh when the operator selects a different exam dataset.
+
 ### Item analytics — value bands
 
 | Metric | Visual bands |
@@ -430,7 +442,7 @@ flowchart LR
 
 ## 13. Verification and sample data
 
-Assignment sample exams, expected totals, and independent verification are documented in **[TechnicalDesign.md](TechnicalDesign.md)**. That material supports implementation and QA; it is not part of the end-user functional surface.
+Assignment sample exams, expected totals, CSV exports, and independent pass/fail verification are documented in **[Prototype.md](Prototype.md)** §7–§8. That material supports QA of the spreadsheet artifact; it is not part of the end-user functional surface.
 
 ---
 
@@ -479,3 +491,5 @@ When building software to this specification:
 | 1.3.1 | Clarified piecewise grade notation (step table + anchor symbols) |
 | 1.4 | §6 formulae in plain Markdown (no LaTeX) |
 | 1.5 | Removed spreadsheet/prototype implementation; product-focused functional areas |
+| 1.6 | Linked to Prototype.md for spreadsheet validation artifact |
+| 1.7 | Student results charts: pass/fail pie and grade distribution bar (§11) |
