@@ -1,0 +1,61 @@
+@page "/students"
+@rendermode InteractiveServer
+@inject ExamSessionService Session
+
+<PageTitle>Student Results</PageTitle>
+
+<h1>Student results</h1>
+
+@if (_analysis is null)
+{
+    <div class="alert alert-warning">No active exam dataset. Go to <a href="configuration">Configuration</a> first.</div>
+}
+else
+{
+    <p class="text-muted">Active exam: <strong>@_analysis.Dataset.Name</strong> — pass threshold @(_analysis.Configuration.PassPct.ToString("P0"))</p>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Total</th>
+                    <th>Max</th>
+                    <th>Percentage</th>
+                    <th>Grade</th>
+                    <th>Pass/Fail</th>
+                    <th>Data check</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var student in _analysis.Students)
+                {
+                    <tr class="@GetRowClass(student)">
+                        <td>@student.StudentId</td>
+                        <td>@student.TotalScore.ToString("0.##")</td>
+                        <td>@student.MaxTotalScore.ToString("0.##")</td>
+                        <td>@student.Percentage.ToString("P1")</td>
+                        <td>@student.Grade.ToString("0.0")</td>
+                        <td class="@(student.Passed ? "text-success" : "text-danger fw-semibold")">@student.PassFail</td>
+                        <td class="@GetDataCheckClass(student)">@student.DataCheckMessage</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private ExamAnalysis? _analysis;
+
+    protected override void OnParametersSet()
+    {
+        _analysis = Session.GetActiveAnalysis();
+    }
+
+    private static string? GetRowClass(StudentResult student) =>
+        student.Passed ? null : "table-danger";
+
+    private static string GetDataCheckClass(StudentResult student) =>
+        student.HasScoreErrors ? "text-warning-emphasis fw-semibold" : "text-success";
+}

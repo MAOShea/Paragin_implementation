@@ -1,0 +1,45 @@
+@page "/checks"
+@rendermode InteractiveServer
+@inject ExamSessionService Session
+
+<PageTitle>Data Checks</PageTitle>
+
+<h1>Data checks</h1>
+
+@if (_analysis is null)
+{
+    <div class="alert alert-warning">No active exam dataset. Go to <a href="configuration">Configuration</a> first.</div>
+}
+else
+{
+    var checks = _analysis.DataChecks;
+    var alertClass = checks.StudentsWithScoreErrors == 0 ? "alert-success" : "alert-warning";
+
+    <div class="alert @alertClass">@checks.StatusMessage</div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered w-auto">
+            <tbody>
+                <tr><th>Active exam</th><td>@checks.ActiveExamName</td></tr>
+                <tr><th>Student count</th><td>@checks.StudentCount</td></tr>
+                <tr><th>Question count</th><td>@checks.QuestionCount</td></tr>
+                <tr><th>Students with score errors</th><td>@checks.StudentsWithScoreErrors</td></tr>
+                <tr><th>Invalid maximum scores</th><td>@checks.InvalidMaximumScores</td></tr>
+                <tr><th>Invalid student scores</th><td>@checks.InvalidStudentScores</td></tr>
+                <tr><th>P′ out of expected range</th><td>@checks.PPrimeOutOfRange</td></tr>
+                <tr><th>Grades out of expected range</th><td>@checks.GradesOutOfRange</td></tr>
+                <tr><th>Pass count</th><td>@checks.PassCount</td></tr>
+                <tr><th>Fail count</th><td>@checks.FailCount</td></tr>
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private ExamAnalysis? _analysis;
+
+    protected override void OnParametersSet()
+    {
+        _analysis = Session.GetActiveAnalysis();
+    }
+}

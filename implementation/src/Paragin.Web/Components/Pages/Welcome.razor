@@ -1,0 +1,34 @@
+@page "/"
+@rendermode InteractiveServer
+
+<PageTitle>Welcome</PageTitle>
+
+<h1>Exam Results Analysis</h1>
+
+<p class="lead">
+    Analyze exam score data: student grades, pass/fail outcomes, and item quality indicators (P′ and rit).
+</p>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h2 class="h5">What this tool does</h2>
+        <ul>
+            <li>Imports exam CSV files with per-question maximum scores.</li>
+            <li>Calculates student totals, percentages, grades (1.0–10.0), and pass/fail.</li>
+            <li>Flags per-student score issues and summarizes dataset health.</li>
+            <li>Computes question-level P′ (difficulty) and rit (discrimination).</li>
+        </ul>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h2 class="h5">Suggested workflow</h2>
+        <ol>
+            <li><a href="configuration">Configuration</a> — select or upload an exam dataset and adjust grading boundaries if needed.</li>
+            <li><a href="checks">Data checks</a> — confirm the input looks valid.</li>
+            <li><a href="students">Student results</a> — review grades and pass/fail.</li>
+            <li><a href="items">Item analytics</a> — review P′, rit, and question bands.</li>
+        </ol>
+    </div>
+</div>

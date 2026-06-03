@@ -1,0 +1,115 @@
+@page "/items"
+@rendermode InteractiveServer
+@inject ExamSessionService Session
+
+<PageTitle>Item Analytics</PageTitle>
+
+<h1>Item analytics</h1>
+
+@if (_analysis is null)
+{
+    <div class="alert alert-warning">No active exam dataset. Go to <a href="configuration">Configuration</a> first.</div>
+}
+else
+{
+    <p class="text-muted">Active exam: <strong>@_analysis.Dataset.Name</strong></p>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h6">Questions by difficulty (P′)</h2>
+                    <ul class="list-unstyled mb-0">
+                        <li><span class="badge band-hard">Too hard</span> @_difficultyBands.TooHard</li>
+                        <li><span class="badge band-ok">OK</span> @_difficultyBands.Ok</li>
+                        <li><span class="badge band-easy">Too easy</span> @_difficultyBands.TooEasy</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h6">Questions by discrimination (rit)</h2>
+                    <ul class="list-unstyled mb-0">
+                        <li><span class="badge band-weak">Weak</span> @_discriminationBands.Weak</li>
+                        <li><span class="badge band-review">Review</span> @_discriminationBands.Review</li>
+                        <li><span class="badge band-good">Good</span> @_discriminationBands.Good</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Question</th>
+                    <th>Max</th>
+                    <th>Average</th>
+                    <th>P′</th>
+                    <th>Difficulty</th>
+                    <th>rit</th>
+                    <th>Discrimination</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in _analysis.Items)
+                {
+                    <tr>
+                        <td>Question @item.QuestionNumber</td>
+                        <td>@item.MaxScore.ToString("0.##")</td>
+                        <td>@item.AverageScore.ToString("0.##")</td>
+                        <td class="@GetPPrimeClass(item)">@(item.PPrime?.ToString("0.###") ?? "—")</td>
+                        <td class="@GetPPrimeClass(item)">@(item.DifficultyLabel ?? "—")</td>
+                        <td class="@GetRitClass(item)">@(item.Rit?.ToString("0.###") ?? "—")</td>
+                        <td class="@GetRitClass(item)">@(item.DiscriminationLabel ?? "—")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private ExamAnalysis? _analysis;
+    private DifficultyBandCounts _difficultyBands = new();
+    private DiscriminationBandCounts _discriminationBands = new();
+
+    protected override void OnParametersSet()
+    {
+        RefreshAnalysis();
+    }
+
+    private void RefreshAnalysis()
+    {
+        _analysis = Session.GetActiveAnalysis();
+        if (_analysis is not null)
+        {
+            _difficultyBands = ExamAnalyzer.CountDifficultyBands(_analysis.Items);
+            _discriminationBands = ExamAnalyzer.CountDiscriminationBands(_analysis.Items);
+        }
+        else
+        {
+            _difficultyBands = new DifficultyBandCounts();
+            _discriminationBands = new DiscriminationBandCounts();
+        }
+    }
+
+    private static string GetPPrimeClass(ItemAnalytic item) => item.DifficultyLabel switch
+    {
+        "Too hard" => "band-hard",
+        "Too easy" => "band-easy",
+        "OK" => "band-ok",
+        _ => string.Empty
+    };
+
+    private static string GetRitClass(ItemAnalytic item) => item.DiscriminationLabel switch
+    {
+        "Weak" => "band-weak",
+        "Review" => "band-review",
+        "Good" => "band-good",
+        _ => string.Empty
+    };
+}

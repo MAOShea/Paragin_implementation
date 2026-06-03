@@ -1,0 +1,179 @@
+@page "/configuration"
+@rendermode InteractiveServer
+@inject ExamSessionService Session
+
+<PageTitle>Configuration</PageTitle>
+
+<h1>Configuration</h1>
+
+@if (!Session.Datasets.Any())
+{
+    <div class="alert alert-warning">No exam datasets are loaded yet. Upload a CSV below.</div>
+}
+else
+{
+    <section class="card mb-4">
+        <div class="card-body">
+            <h2 class="h5">Active exam dataset</h2>
+            <div class="mb-3">
+                <label class="form-label" for="activeExam">Active exam</label>
+                <select id="activeExam" class="form-select" @bind="_activeExamId" @bind:after="OnActiveExamChanged">
+                    @foreach (var dataset in Session.Datasets)
+                    {
+                        <option value="@dataset.Id">@dataset.Name (@dataset.StudentCount students, @dataset.QuestionCount questions)</option>
+                    }
+                </select>
+            </div>
+
+            @if (_activeDataset is not null)
+            {
+                <p class="text-muted mb-0">
+                    Maximum total score: <strong>@_activeDataset.MaxTotalScore.ToString("0.##")</strong>
+                </p>
+            }
+        </div>
+    </section>
+}
+
+<section class="card mb-4">
+    <div class="card-body">
+        <h2 class="h5">Exam data</h2>
+        <p>Upload a CSV that matches the assignment layout (header row, maxima row, student rows).</p>
+        <InputFile OnChange="ImportCsvAsync" accept=".csv,text/csv" />
+        @if (!string.IsNullOrWhiteSpace(_uploadMessage))
+        {
+            <p class="mt-2 mb-0 @(_uploadError ? "text-danger" : "text-success")">@_uploadMessage</p>
+        }
+    </div>
+</section>
+
+<section class="card mb-4">
+    <div class="card-body">
+        <h2 class="h5">Grading boundaries (caesura)</h2>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">minPct</label>
+                <input type="number" step="0.01" class="form-control" @bind="_minPct" />
+                <div class="form-text">Lower grade boundary (fraction of max score).</div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">passPct</label>
+                <input type="number" step="0.01" class="form-control" @bind="_passPct" />
+                <div class="form-text">Pass threshold (default 0.7 = 70%).</div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">maxPct</label>
+                <input type="number" step="0.01" class="form-control" @bind="_maxPct" />
+                <div class="form-text">Upper grade boundary.</div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">minGrade</label>
+                <input type="number" step="0.1" class="form-control" @bind="_minGrade" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">passGrade</label>
+                <input type="number" step="0.1" class="form-control" @bind="_passGrade" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">maxGrade</label>
+                <input type="number" step="0.1" class="form-control" @bind="_maxGrade" />
+            </div>
+        </div>
+        <button class="btn btn-primary mt-3" @onclick="SaveConfiguration">Save configuration</button>
+        @if (!string.IsNullOrWhiteSpace(_saveMessage))
+        {
+            <span class="ms-2 text-success">@_saveMessage</span>
+        }
+    </div>
+</section>
+
+@code {
+    private string? _activeExamId;
+    private ExamDataset? _activeDataset;
+    private double _minPct = 0.2;
+    private double _passPct = 0.7;
+    private double _maxPct = 1.0;
+    private double _minGrade = 1.0;
+    private double _passGrade = 5.5;
+    private double _maxGrade = 10.0;
+    private string? _uploadMessage;
+    private bool _uploadError;
+    private string? _saveMessage;
+
+    protected override void OnInitialized()
+    {
+        LoadFromSession();
+    }
+
+    private void LoadFromSession()
+    {
+        var config = Session.Configuration;
+        _activeExamId = Session.GetActiveDataset()?.Id;
+        _activeDataset = Session.GetActiveDataset();
+        _minPct = config.MinPct;
+        _passPct = config.PassPct;
+        _maxPct = config.MaxPct;
+        _minGrade = config.MinGrade;
+        _passGrade = config.PassGrade;
+        _maxGrade = config.MaxGrade;
+    }
+
+    private void OnActiveExamChanged()
+    {
+        if (string.IsNullOrWhiteSpace(_activeExamId))
+            return;
+
+        Session.SetActiveExam(_activeExamId);
+        _activeDataset = Session.GetActiveDataset();
+        _saveMessage = null;
+    }
+
+    private void SaveConfiguration()
+    {
+        if (!string.IsNullOrWhiteSpace(_activeExamId))
+            Session.SetActiveExam(_activeExamId);
+
+        Session.UpdateConfiguration(new GradingConfiguration
+        {
+            ActiveExamId = _activeExamId,
+            MinPct = _minPct,
+            PassPct = _passPct,
+            MaxPct = _maxPct,
+            MinGrade = _minGrade,
+            PassGrade = _passGrade,
+            MaxGrade = _maxGrade
+        });
+
+        _activeDataset = Session.GetActiveDataset();
+        _saveMessage = "Saved.";
+    }
+
+    private async Task ImportCsvAsync(InputFileChangeEventArgs args)
+    {
+        _uploadMessage = null;
+        _uploadError = false;
+
+        var file = args.File;
+        if (file is null)
+            return;
+
+        try
+        {
+            await using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+            using var memory = new MemoryStream();
+            await stream.CopyToAsync(memory);
+            memory.Position = 0;
+
+            var dataset = Session.ImportDataset(Path.GetFileNameWithoutExtension(file.Name), memory);
+            _activeExamId = dataset.Id;
+            _activeDataset = dataset;
+            _saveMessage = null;
+            _uploadMessage = $"Imported {dataset.Name}: {dataset.StudentCount} students, {dataset.QuestionCount} questions.";
+        }
+        catch (Exception ex)
+        {
+            _uploadError = true;
+            _uploadMessage = ex.Message;
+        }
+    }
+}

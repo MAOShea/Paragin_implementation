@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Paragin.Shared/Paragin.Shared.csproj" />
+    <Project Path="src/Paragin.Web/Paragin.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Paragin.Shared.Tests/Paragin.Shared.Tests.csproj" />
+  </Folder>
+</Solution>

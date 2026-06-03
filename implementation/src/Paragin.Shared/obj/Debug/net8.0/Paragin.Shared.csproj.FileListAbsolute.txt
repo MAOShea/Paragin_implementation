@@ -1,0 +1,11 @@
+C:\Users\micha\Documents\Paragin_implementation\implementation\src\Paragin.Shared\bin\Debug\net8.0\Paragin.Shared.deps.json
+C:\Users\micha\Documents\Paragin_implementation\implementation\src\Paragin.Shared\bin\Debug\net8.0\Paragin.Shared.dll
+C:\Users\micha\Documents\Paragin_implementation\implementation\src\Paragin.Shared\bin\Debug\net8.0\Paragin.Shared.pdb
+C:\Users\micha\Documents\Paragin_implementation\implementation\src\Paragin.Shared\obj\Debug\net8.0\Paragin.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\micha\Documents\Paragin_implementation\implementation\src\Paragin.Shared\obj\Debug\net8.0\Paragin.Shared.AssemblyInfoInputs.cache
+C:\Users\micha\Documents\Paragin_implementation\implementation\src\Paragin.Shared\obj\Debug\net8.0\Paragin.Shared.AssemblyInfo.cs
+C:\Users\micha\Documents\Paragin_implementation\implementation\src\Paragin.Shared\obj\Debug\net8.0\Paragin.Shared.csproj.CoreCompileInputs.cache
+C:\Users\micha\Documents\Paragin_implementation\implementation\src\Paragin.Shared\obj\Debug\net8.0\Paragin.Shared.dll
+C:\Users\micha\Documents\Paragin_implementation\implementation\src\Paragin.Shared\obj\Debug\net8.0\refint\Paragin.Shared.dll
+C:\Users\micha\Documents\Paragin_implementation\implementation\src\Paragin.Shared\obj\Debug\net8.0\Paragin.Shared.pdb
+C:\Users\micha\Documents\Paragin_implementation\implementation\src\Paragin.Shared\obj\Debug\net8.0\ref\Paragin.Shared.dll

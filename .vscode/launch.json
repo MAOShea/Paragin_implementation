@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Paragin.Web (Debug)",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/implementation/src/Paragin.Web/Paragin.Web.csproj"
+    },
+    {
+      "name": "Run Paragin.Web (terminal, no debugger)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "dotnet run --project implementation/src/Paragin.Web/Paragin.Web.csproj",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
